@@ -1,0 +1,51 @@
+version: "3.8"
+services: 
+  mongodb: 
+    image: mongo
+    container_name: 
+      mongodb
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=UsvEr4VX6ShZRsqW
+      - MONGO_INITDB_ROOT_PASSWORD=4tYwbrdXJYpS74TZ
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - mongodb_network
+    ports: 
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo 172.17.0.1:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+  mongo_express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=UsvEr4VX6ShZRsqW
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=4tYwbrdXJYpS74TZ
+      - ME_CONFIG_BASICAUTH_USERNAME=Y9stpgUXvK7zT3Ud
+      - ME_CONFIG_BASICAUTH_PASSWORD=yUT7bUbGh2Z3dYTm
+    volumes: 
+      - mongodb-data
+    depends_on: 
+      - mongodb
+    networks:
+      - mongodb_network
+    ports:
+      - 8081:8081
+    healthcheck:
+      test: wget --quiet --tries=3 --spider http://WhatDoIWriteHere:WowLookAtMyPassword@172.17.0.1:8081 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+volumes: 
+  mongodb-data: 
+    name: mongodb-data
+networks: 
+  mongodb_network: 
+    name: mongodb_network
